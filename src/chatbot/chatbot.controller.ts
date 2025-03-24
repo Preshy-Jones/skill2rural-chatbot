@@ -10,4 +10,3 @@ export class ChatbotController {
     return this.chatbotService.webhook(body);
   }
 }
-
