@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Conversation {
+ id           Int      @id @default(autoincrement()) 
+ phoneNumber  String   
+ createdAt    DateTime @default(now())
+ lastMessageAt DateTime @updatedAt
+ isActive     Boolean  @default(true)
+ messages Message[]
+
+ ConversationState ConversationState[]
+
+ StateTransition StateTransition[]
+}
+
+model Message {
+ id            Int          @id @default(autoincrement())
+  role          String
+  content       String
+  conversation  Conversation @relation(fields: [conversationId], references: [id])
+  conversationId Int
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+
+model ConversationState {
+  id              Int      @id @default(autoincrement())
+  conversationId  Int      @unique
+  stateData      String   // JSON string of state data
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model StateTransition {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  fromState      String
+  toState        String
+  timestamp      DateTime
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
